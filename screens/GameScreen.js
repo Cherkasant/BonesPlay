@@ -1,8 +1,12 @@
-import { Alert, StyleSheet, Text, View } from 'react-native'
+import { Alert, FlatList, StyleSheet, View } from 'react-native'
 import Title from '../components/ui/Title'
 import { useEffect, useState } from 'react'
 import NumberContainer from '../components/game/NumberContainer'
 import PrimaryButton from '../components/ui/PrimaryButton'
+import Card from '../components/ui/Card'
+import InstructionTitle from '../components/ui/InstructionTitle'
+import { AntDesign } from '@expo/vector-icons'
+import LogItem from '../components/game/LogItem'
 
 const generateRandomNumber = (min, max, exclude) => {
     const randomNumber = Math.floor(Math.random() * (max - min)) + min
@@ -18,12 +22,18 @@ let max = 100
 const GameScreen = ({ userNumber, onGameOver }) => {
     const initialGuess = generateRandomNumber(1, 100, userNumber)
     const [currentGuess, setCurrentGuess] = useState(initialGuess)
+    const [guessRound, setGuessRound] = useState([initialGuess])
 
     useEffect(() => {
         if (currentGuess === userNumber) {
-            onGameOver()
+            onGameOver(guessRound.length)
         }
     }, [currentGuess, userNumber, onGameOver])
+
+    useEffect(() => {
+        min = 1
+        max = 100
+    }, [])
 
     const nextNumberHandler = (direction) => {
         if ((direction === 'lower' && currentGuess < userNumber) || (direction === 'greater' && currentGuess > userNumber)) {
@@ -35,23 +45,30 @@ const GameScreen = ({ userNumber, onGameOver }) => {
         } else {
             min = currentGuess + 1
         }
-        console.log(min, max)
         const newRandomNumber = generateRandomNumber(min, max, currentGuess)
         setCurrentGuess(newRandomNumber)
+        setGuessRound(prev => [newRandomNumber, ...prev])
     }
+    const roundsListLength = guessRound.length
 
     return <View style={styles.screen}>
         <Title>{'Opponent guess'}</Title>
         <NumberContainer>{currentGuess}</NumberContainer>
-        <View>
-            <Text>Higher or lower?</Text>
-            <View>
-                <PrimaryButton onPress={nextNumberHandler.bind(this, 'lower')}>{'-'}</PrimaryButton>
-                <PrimaryButton onPress={nextNumberHandler.bind(this, 'greater')}>{'+'}</PrimaryButton>
+        <Card>
+            <InstructionTitle style={styles.text}>Higher or lower</InstructionTitle>
+            <View style={styles.btnContainer}>
+                <View style={styles.button}>
+                    <PrimaryButton onPress={nextNumberHandler.bind(this, 'lower')}><AntDesign name='minuscircleo'
+                                                                                              size={24} color='white' /></PrimaryButton></View>
+                <View style={styles.button}>
+                    <PrimaryButton
+                        onPress={nextNumberHandler.bind(this, 'greater')}>
+                        <AntDesign name='pluscircleo' size={24} color='white' /></PrimaryButton></View>
             </View>
-        </View>
-        <View>
-            <Text>LOG rounds</Text>
+        </Card>
+        <View style={styles.listContainer}>
+            <FlatList data={guessRound} keyExtractor={(item) => item} renderItem={(itemData) => (
+                <LogItem guess={itemData.item} roundNumber={roundsListLength - itemData.index} />)} />
         </View>
     </View>
 }
@@ -63,5 +80,17 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 24,
     },
-
+    btnContainer: {
+        flexDirection: 'row',
+    },
+    button: {
+        flex: 1,
+    },
+    text: {
+        marginBottom: 12,
+    },
+    listContainer: {
+        flex: 1,
+        padding: 16,
+    },
 })

@@ -4,25 +4,42 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { useState } from 'react'
 import GameScreen from './screens/GameScreen'
 import GameOverScreen from './screens/GameOverScreen'
+import { useFonts } from 'expo-font'
+import AppLoading from 'expo-app-loading'
 
 export default function App() {
 
     const [userNumber, setUserNumber] = useState(null)
     const [gameOver, setGameOVer] = useState(true)
+    const [guessRound, setGuessRounds] = useState(0)
+
+    const [fontsLoaded] = useFonts({
+        'Rem': require('../TargetApp/assets/fonts/REM-Italic-VariableFont_wght.ttf'),
+    })
+
+    if (!fontsLoaded) {
+        return <AppLoading />
+    }
 
     const numberHandler = (number) => {
         setUserNumber(number)
         setGameOVer(false)
     }
-    const gameOverHandler = () => {
+    const gameOverHandler = (numberOfRounds) => {
         setGameOVer(true)
+        setGuessRounds(numberOfRounds)
+    }
+
+    const onStartNewGameHandler = () => {
+        setUserNumber(null)
+        setGuessRounds(0)
     }
     let screen = <StartGameScreen onPickNumber={numberHandler} />
     if (userNumber) {
         screen = <GameScreen userNumber={userNumber} onGameOver={gameOverHandler} />
     }
     if (gameOver && userNumber) {
-        screen = <GameOverScreen />
+        screen = <GameOverScreen userNumber={userNumber} rounds={guessRound} onStartNewGame={onStartNewGameHandler} />
     }
 
 

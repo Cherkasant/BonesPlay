@@ -8,6 +8,7 @@ export default Title
 
 const styles = StyleSheet.create({
     title: {
+        fontFamily: 'Rem',
         padding: 10,
         fontSize: 24,
         fontWeight: 'bold',

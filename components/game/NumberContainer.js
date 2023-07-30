@@ -20,6 +20,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     numberText: {
+        fontFamily: 'Rem',
         color: Colors.accent,
         fontWeight: 'bold',
         fontSize: 36,

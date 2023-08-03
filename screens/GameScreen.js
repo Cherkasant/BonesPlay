@@ -1,5 +1,5 @@
-import { Alert, FlatList, StyleSheet, View } from 'react-native'
-import Title from '../components/ui/Title'
+import { Alert, FlatList, StyleSheet, useWindowDimensions, View } from 'react-native'
+import TitleIos from '../components/ui/Title'
 import { useEffect, useState } from 'react'
 import NumberContainer from '../components/game/NumberContainer'
 import PrimaryButton from '../components/ui/PrimaryButton'
@@ -23,6 +23,8 @@ const GameScreen = ({ userNumber, onGameOver }) => {
     const initialGuess = generateRandomNumber(1, 100, userNumber)
     const [currentGuess, setCurrentGuess] = useState(initialGuess)
     const [guessRound, setGuessRound] = useState([initialGuess])
+
+    const { width } = useWindowDimensions()
 
     useEffect(() => {
         if (currentGuess === userNumber) {
@@ -51,8 +53,7 @@ const GameScreen = ({ userNumber, onGameOver }) => {
     }
     const roundsListLength = guessRound.length
 
-    return <View style={styles.screen}>
-        <Title>{'Opponent guess'}</Title>
+    let content = <>
         <NumberContainer>{currentGuess}</NumberContainer>
         <Card>
             <InstructionTitle style={styles.text}>Higher or lower</InstructionTitle>
@@ -66,6 +67,29 @@ const GameScreen = ({ userNumber, onGameOver }) => {
                         <AntDesign name='pluscircleo' size={24} color='white' /></PrimaryButton></View>
             </View>
         </Card>
+    </>
+
+    if (width > 500) {
+        content = <>
+            <InstructionTitle style={styles.text}>Higher or lower</InstructionTitle>
+            <View style={styles.btnContainerWidth}>
+                <View style={styles.button}>
+                    <PrimaryButton onPress={nextNumberHandler.bind(this, 'lower')}><AntDesign name='minuscircleo'
+                                                                                              size={24} color='white' /></PrimaryButton>
+                </View>
+                <NumberContainer>{currentGuess}</NumberContainer>
+                <View style={styles.button}>
+                    <PrimaryButton onPress={nextNumberHandler.bind(this, 'greater')}>
+                        <AntDesign name='pluscircleo' size={24} color='white' /></PrimaryButton>
+                </View>
+            </View>
+        </>
+
+    }
+
+    return <View style={styles.screen}>
+        <TitleIos>{'Opponent guess'}</TitleIos>
+        {content}
         <View style={styles.listContainer}>
             <FlatList data={guessRound} keyExtractor={(item) => item} renderItem={(itemData) => (
                 <LogItem guess={itemData.item} roundNumber={roundsListLength - itemData.index} />)} />
@@ -76,9 +100,13 @@ const GameScreen = ({ userNumber, onGameOver }) => {
 export default GameScreen
 
 const styles = StyleSheet.create({
+    btnContainerWidth: {
+        flexDirection: 'row',
+    },
     screen: {
         flex: 1,
         padding: 24,
+        alignItems: 'center',
     },
     btnContainer: {
         flexDirection: 'row',

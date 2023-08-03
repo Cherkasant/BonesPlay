@@ -1,10 +1,10 @@
 import { StyleSheet, Text } from 'react-native'
 
-const Title = ({ children }) => {
+const TitleIos = ({ children }) => {
     return <Text style={styles.title}>{children}</Text>
 }
 
-export default Title
+export default TitleIos
 
 const styles = StyleSheet.create({
     title: {
@@ -16,5 +16,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         borderWidth: 2,
         borderColor: '#eae9f0',
+        maxWidth: '80%',
+        width: 300,
     },
 })

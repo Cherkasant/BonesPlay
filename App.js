@@ -1,11 +1,14 @@
 import { ImageBackground, SafeAreaView, StyleSheet } from 'react-native'
 import StartGameScreen from './screens/StartGameScreen'
 import { LinearGradient } from 'expo-linear-gradient'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import GameScreen from './screens/GameScreen'
 import GameOverScreen from './screens/GameOverScreen'
 import { useFonts } from 'expo-font'
-import AppLoading from 'expo-app-loading'
+import * as SplashScreen from 'expo-splash-screen'
+import { StatusBar } from 'expo-status-bar'
+
+SplashScreen.preventAutoHideAsync()
 
 export default function App() {
 
@@ -16,10 +19,27 @@ export default function App() {
     const [fontsLoaded] = useFonts({
         'Rem': require('../TargetApp/assets/fonts/REM-Italic-VariableFont_wght.ttf'),
     })
+    useEffect(() => {
+        async function prepare() {
+            await SplashScreen.preventAutoHideAsync()
+        }
+
+        prepare()
+    }, [])
+
+    const onLayoutRootView = useCallback(async () => {
+        if (fontsLoaded) {
+            await SplashScreen.hideAsync()
+        }
+    }, [fontsLoaded])
 
     if (!fontsLoaded) {
-        return <AppLoading />
+        return null
     }
+
+    // if (!fontsLoaded) {
+    //     return <AppLoading />
+    // }
 
     const numberHandler = (number) => {
         setUserNumber(number)
@@ -43,14 +63,16 @@ export default function App() {
     }
 
 
-    return (<LinearGradient colors={['rgba(1,0,0,0.8)', 'transparent']} style={styles.root}>
-            <ImageBackground source={require('./assets/images/background.png')}
-                             resizeMode={'cover'} style={styles.root} imageStyle={styles.backgroundImage}>
-                <SafeAreaView style={styles.root}>{screen}</SafeAreaView>
-            </ImageBackground>
+    return (<>
+            <StatusBar style={'light'} />
+            <LinearGradient colors={['rgba(1,0,0,0.8)', 'transparent']} style={styles.root}>
+                <ImageBackground source={require('./assets/images/background.png')}
+                                 resizeMode={'cover'} style={styles.root} imageStyle={styles.backgroundImage}>
+                    <SafeAreaView style={styles.root} onLayout={onLayoutRootView}>{screen}</SafeAreaView>
+                </ImageBackground>
 
-        </LinearGradient>
-
+            </LinearGradient>
+        </>
     )
 }
 
